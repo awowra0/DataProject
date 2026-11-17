@@ -1,0 +1,15 @@
+TLC Pipeline structure
+Loop item:
+@activity('Script_params').output.resultSets[0].rows
+
+First copy item:
+Source binary:
+@concat('trip-data/', item().type, '_tripdata_', item().year, '-', item().month, '.parquet')
+Target binary file:
+TLC / @{item().type}_@{item().year}_@{item().month}
+
+Second copy item:
+Source Parquet file:
+TLC / @{item().type}_@{item().year}_@{item().month}
+Target overwrite table:
+Bronze / @{item().type}_@{item().year}_@{item().month}
