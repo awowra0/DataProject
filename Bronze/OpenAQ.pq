@@ -1,6 +1,6 @@
 let
     ApiKey = "API_KEY_VALUE",
-    SensorId = "SENSOR_ID_VALUE",
+    SensorIds = {"1128", "1152", "1146", "673", "1106", "671"},
     StartDate = #date(2016, 1, 1),
     EndDate = Date.From(DateTime.LocalNow()),
 
@@ -17,7 +17,7 @@ let
             ]
     ),
 
-    FetchMonth = (Range as record) =>
+    FetchMonth = (SensorId as text, Range as record) =>
         let
             Source = Json.Document(
                 Web.Contents(
@@ -34,14 +34,27 @@ let
                     ]
                 )
             ),
-            Results = Source[results]
-        in
-            Results,
+            Results = Source[results],
 
-    AllResults = List.Transform(DateRanges, each FetchMonth(_)),
+             AddSensorId = List.Transform(
+                Results,
+                each Record.AddField(_, "sensor_id", SensorId)
+            )
+        in
+            AddSensorId,
+
+    FetchSensor = (SensorId as text) =>
+        List.Combine(
+            List.Transform(
+                DateRanges,
+                each FetchMonth(SensorId, _)
+            )
+        ),
+
+    AllResults = List.Transform(SensorIds, each FetchSensor(_)),
     CombinedList = List.Combine(AllResults),
     ToTable = Table.FromList(CombinedList, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
-  #"Expanded Column1" = Table.ExpandRecordColumn(ToTable, "Column1", {"value", "flagInfo", "parameter", "period", "coordinates", "summary", "coverage"}, {"value", "flagInfo", "parameter", "period", "coordinates", "summary", "coverage"}),
+  #"Expanded Column1" = Table.ExpandRecordColumn(ToTable, "Column1", {"value", "flagInfo", "parameter", "period", "coordinates", "summary", "coverage", "sensor_id"}, {"value", "flagInfo", "parameter", "period", "coordinates", "summary", "coverage", "sensor_id"}),
   #"Expanded flagInfo" = Table.ExpandRecordColumn(#"Expanded Column1", "flagInfo", {"hasFlags"}, {"hasFlags"}),
   #"Expanded parameter" = Table.ExpandRecordColumn(#"Expanded flagInfo", "parameter", {"id", "name", "units", "displayName"}, {"id", "name", "units", "displayName"}),
   #"Expanded period" = Table.ExpandRecordColumn(#"Expanded parameter", "period", {"label", "interval", "datetimeFrom", "datetimeTo"}, {"period_label", "period_interval", "period_datetimeFrom", "period_datetimeTo"}),
@@ -51,6 +64,6 @@ let
   #"Expanded coverage" = Table.ExpandRecordColumn(#"Expanded summary", "coverage", {"expectedCount", "expectedInterval", "observedCount", "observedInterval", "percentComplete", "percentCoverage", "datetimeFrom", "datetimeTo"}, {"coverage_expectedCount", "coverage_expectedInterval", "coverage_observedCount", "coverage_observedInterval", "coverage_percentComplete", "coverage_percentCoverage", "coverage_datetimeFrom", "coverage_datetimeTo"}),
   #"Expanded coverage.datetimeFrom" = Table.ExpandRecordColumn(#"Expanded coverage", "coverage_datetimeFrom", {"utc", "local"}, {"coverage_datetimeFrom_utc", "coverage_datetimeFrom_local"}),
   #"Expanded coverage.datetimeTo" = Table.ExpandRecordColumn(#"Expanded coverage.datetimeFrom", "coverage_datetimeTo", {"utc", "local"}, {"coverage_datetimeTo_utc", "coverage_datetimeTo_local"}),
-  #"Changed column type" = Table.TransformColumnTypes(#"Expanded coverage.datetimeTo", {{"value", type text}, {"min", type text}, {"q02", type text}, {"q25", type text}, {"median", type text}, {"q75", type text}, {"q98", type text}, {"max", type text}, {"avg", type text}, {"sd", type text}, {"coverage_expectedCount", Int64.Type}, {"coverage_observedCount", Int64.Type}, {"coverage_percentComplete", Int64.Type}, {"coverage_percentCoverage", Int64.Type}, {"hasFlags", type logical}, {"id", Int64.Type}, {"name", type text}, {"units", type text}, {"displayName", type text}, {"period_label", type text}, {"coordinates", type text}, {"period_interval", type duration}, {"coverage_expectedInterval", type duration}, {"coverage_observedInterval", type duration}, {"period_datetimeFrom_utc", type datetime}, {"period_datetimeTo_utc", type datetime}, {"coverage_datetimeFrom_utc", type datetime}, {"coverage_datetimeTo_utc", type datetime}, {"period_datetimeFrom_local", type datetimezone}, {"period_datetimeTo_local", type datetimezone}, {"coverage_datetimeFrom_local", type datetimezone}, {"coverage_datetimeTo_local", type datetimezone}})
+  #"Changed column type" = Table.TransformColumnTypes(#"Expanded coverage.datetimeTo", {{"value", type text}, {"min", type text}, {"q02", type text}, {"q25", type text}, {"median", type text}, {"q75", type text}, {"q98", type text}, {"max", type text}, {"avg", type text}, {"sd", type text}, {"coverage_expectedCount", Int64.Type}, {"coverage_observedCount", Int64.Type}, {"coverage_percentComplete", Int64.Type}, {"coverage_percentCoverage", Int64.Type}, {"hasFlags", type logical}, {"id", Int64.Type}, {"name", type text}, {"units", type text}, {"displayName", type text}, {"period_label", type text}, {"coordinates", type text}, {"period_interval", type duration}, {"coverage_expectedInterval", type duration}, {"coverage_observedInterval", type duration}, {"period_datetimeFrom_utc", type datetime}, {"period_datetimeTo_utc", type datetime}, {"coverage_datetimeFrom_utc", type datetime}, {"coverage_datetimeTo_utc", type datetime}, {"period_datetimeFrom_local", type datetimezone}, {"period_datetimeTo_local", type datetimezone}, {"coverage_datetimeFrom_local", type datetimezone}, {"coverage_datetimeTo_local", type datetimezone}, {"sensor_id", Int64.Type}})
 in
     #"Changed column type"
