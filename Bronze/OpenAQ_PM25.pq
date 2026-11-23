@@ -1,6 +1,7 @@
+//Target Lakehouse/Tables/Bronze/OpenAQ_PM25
 let
     ApiKey = "API_KEY_VALUE",
-    SensorIds = {"1128", "1152", "1146", "673", "1106", "671"},
+    SensorIds = {"1128", "1152", "1146", "673"},
     StartDate = #date(2016, 1, 1),
     EndDate = Date.From(DateTime.LocalNow()),
 
@@ -67,3 +68,4 @@ let
   #"Changed column type" = Table.TransformColumnTypes(#"Expanded coverage.datetimeTo", {{"value", type text}, {"min", type text}, {"q02", type text}, {"q25", type text}, {"median", type text}, {"q75", type text}, {"q98", type text}, {"max", type text}, {"avg", type text}, {"sd", type text}, {"coverage_expectedCount", Int64.Type}, {"coverage_observedCount", Int64.Type}, {"coverage_percentComplete", Int64.Type}, {"coverage_percentCoverage", Int64.Type}, {"hasFlags", type logical}, {"id", Int64.Type}, {"name", type text}, {"units", type text}, {"displayName", type text}, {"period_label", type text}, {"coordinates", type text}, {"period_interval", type duration}, {"coverage_expectedInterval", type duration}, {"coverage_observedInterval", type duration}, {"period_datetimeFrom_utc", type datetime}, {"period_datetimeTo_utc", type datetime}, {"coverage_datetimeFrom_utc", type datetime}, {"coverage_datetimeTo_utc", type datetime}, {"period_datetimeFrom_local", type datetimezone}, {"period_datetimeTo_local", type datetimezone}, {"coverage_datetimeFrom_local", type datetimezone}, {"coverage_datetimeTo_local", type datetimezone}, {"sensor_id", Int64.Type}})
 in
     #"Changed column type"
+
