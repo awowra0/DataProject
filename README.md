@@ -28,7 +28,7 @@ Bronze
   
 Silver  
 -	Notebook-Silver
-    -	leans and transforms Bronze data  
+    -	cleans and transforms Bronze data  
 -	LakehouseSilver
     -	keeps all transformed data  
   
