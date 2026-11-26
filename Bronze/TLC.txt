@@ -10,34 +10,34 @@ TLC Pipeline structure
   -Copy2
 
 Script:
-Content of TLC.sql
+  Content of TLC.sql
 
 Loop item:
-@activity('Script_params').output.resultSets[0].rows
+  @activity('Script_params').output.resultSets[0].rows
 
 Get Metadata item:
-Lakehouse: 
-LakehouseBronze
-Source Binary:
-TLC / @{item().type}_@{item().year}_@{item().month}
-Field list:
-Exists
+  Lakehouse: 
+    LakehouseBronze
+  Source Binary:
+    TLC / @{item().type}_@{item().year}_@{item().month}
+  Field list:
+    Exists
 
 If condition item:
-@activity('Get Metadata1').output.exists
+  @activity('Get Metadata1').output.exists
 
 First copy item inside False condition:
-Lakehouse:
-LakehouseBronze
-Source binary:
-@concat('trip-data/', item().type, '_tripdata_', item().year, '-', item().month, '.parquet')
-Target binary file:
-TLC / @{item().type}_@{item().year}_@{item().month}
+  Lakehouse:
+    LakehouseBronze
+  Source binary:
+    @concat('trip-data/', item().type, '_tripdata_', item().year, '-', item().month, '.parquet')
+  Target binary file:
+    TLC / @{item().type}_@{item().year}_@{item().month}
 
-Second copy item after conditions:
-Lakehouse:
-LakehouseBronze
-Source Parquet file:
-TLC / @{item().type}_@{item().year}_@{item().month}
+Second copy item after condition:
+  Lakehouse:
+    LakehouseBronze
+  Source Parquet file:
+  TLC / @{item().type}_@{item().year}_@{item().month}
 Target overwrite table:
-Bronze / @{item().type}_@{item().year}_@{item().month}
+  Bronze_TLC / @{item().type}_@{item().year}_@{item().month}
